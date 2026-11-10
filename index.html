@@ -58,7 +58,7 @@
       font-family: 'Cormorant Garamond', serif;
     }
 
-    /* 3D Envelope Styles */
+    /* 3D Envelope Styles (Totalmente Responsivo para Móviles y Escritorio) */
     .perspective-container {
       perspective: 1200px;
     }
@@ -67,7 +67,7 @@
       position: relative;
       width: 100%;
       max-width: 440px;
-      height: 300px;
+      aspect-ratio: 440 / 300;
       margin: 0 auto;
       transform-style: preserve-3d;
       transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -96,10 +96,10 @@
     /* Inside card preview before pull */
     .envelope-card-inner {
       position: absolute;
-      left: 14px;
-      right: 14px;
-      bottom: 12px;
-      height: 270px;
+      top: 10px;
+      bottom: 10px;
+      left: 12px;
+      right: 12px;
       background: linear-gradient(180deg, #ffffff 0%, #faf6fe 100%);
       border-radius: 10px;
       border: 1px solid rgba(212, 175, 55, 0.4);
@@ -110,16 +110,16 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 20px;
+      padding: 12px;
       text-align: center;
     }
 
     .envelope-wrapper.opened .envelope-card-inner {
-      transform: translateY(-240px) scale(1.04);
+      transform: translateY(-80%) scale(1.04);
       opacity: 0.95;
     }
 
-    /* Envelope Bottom/Side Flaps */
+    /* Envelope Bottom/Side Flaps con clip-path */
     .envelope-pocket {
       position: absolute;
       inset: 0;
@@ -129,41 +129,44 @@
 
     .envelope-pocket-left {
       position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 0;
-      height: 0;
-      border-left: 220px solid #75559c;
-      border-top: 150px solid transparent;
-      border-bottom: 150px solid #75559c;
-      border-radius: 0 0 0 12px;
+      inset: 0;
       filter: drop-shadow(4px 0 6px rgba(45, 20, 75, 0.2));
+    }
+    .envelope-pocket-left::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: #75559c;
+      clip-path: polygon(0 0, 50% 50%, 0 100%);
+      border-radius: 12px 0 0 12px;
     }
 
     .envelope-pocket-right {
       position: absolute;
-      bottom: 0;
-      right: 0;
-      width: 0;
-      height: 0;
-      border-right: 220px solid #7e5ea5;
-      border-top: 150px solid transparent;
-      border-bottom: 150px solid #7e5ea5;
-      border-radius: 0 0 12px 0;
+      inset: 0;
       filter: drop-shadow(-4px 0 6px rgba(45, 20, 75, 0.2));
+    }
+    .envelope-pocket-right::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: #7e5ea5;
+      clip-path: polygon(100% 0, 50% 50%, 100% 100%);
+      border-radius: 0 12px 12px 0;
     }
 
     .envelope-pocket-bottom {
       position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 0;
-      height: 0;
-      border-bottom: 165px solid #6c4c92;
-      border-left: 220px solid transparent;
-      border-right: 220px solid transparent;
-      border-radius: 0 0 12px 12px;
+      inset: 0;
       filter: drop-shadow(0 -4px 8px rgba(45, 20, 75, 0.25));
+    }
+    .envelope-pocket-bottom::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: #6c4c92;
+      clip-path: polygon(0 100%, 50% 45%, 100% 100%);
+      border-radius: 0 0 12px 12px;
     }
 
     /* Top Flap with 3D Rotation */
@@ -171,28 +174,35 @@
       position: absolute;
       top: 0;
       left: 0;
-      width: 0;
-      height: 0;
-      border-top: 175px solid #8463ac;
-      border-left: 220px solid transparent;
-      border-right: 220px solid transparent;
-      border-radius: 12px 12px 0 0;
+      width: 100%;
+      height: 58.33%;
       transform-origin: top center;
       transition: transform 0.9s cubic-bezier(0.4, 0, 0.2, 1);
       z-index: 30;
       filter: drop-shadow(0 6px 12px rgba(40, 15, 70, 0.35));
     }
+    .envelope-top-flap::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: #8463ac;
+      clip-path: polygon(0 0, 100% 0, 50% 100%);
+      border-radius: 12px 12px 0 0;
+      transition: background-color 0.9s ease;
+    }
 
     .envelope-wrapper.opened .envelope-top-flap {
       transform: rotateX(180deg);
       z-index: 5;
-      border-top-color: #634586;
+    }
+    .envelope-wrapper.opened .envelope-top-flap::after {
+      background-color: #634586;
     }
 
     /* Wax Seal / Brooch */
     .butterfly-seal {
       position: absolute;
-      top: 150px;
+      top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
       z-index: 40;
@@ -313,11 +323,11 @@
 
         <!-- Inner Invitation Card (Peeking) -->
         <div class="envelope-card-inner">
-          <div class="border border-[#d4af37]/40 w-full h-full p-4 flex flex-col items-center justify-center rounded-lg bg-white/70">
-            <span class="font-script text-3xl text-[#5e3d88]">Angie Siciliano</span>
-            <div class="w-12 h-0.5 bg-gradient-to-r from-transparent via-[#d4af37] to-transparent my-2"></div>
-            <p class="font-cormorant text-base text-[#4a3266] italic">Te invito a mi acción de gracias en una tarde de adoración a Dios</p>
-            <p class="text-[11px] uppercase tracking-widest text-[#8463ac] font-semibold mt-3">Viernes • 25 de Diciembre</p>
+          <div class="border border-[#d4af37]/40 w-full h-full p-2 sm:p-4 flex flex-col items-center justify-center rounded-lg bg-white/70">
+            <span class="font-script text-2xl sm:text-3xl text-[#5e3d88]">Angie Siciliano</span>
+            <div class="w-12 h-0.5 bg-gradient-to-r from-transparent via-[#d4af37] to-transparent my-1 sm:my-2"></div>
+            <p class="font-cormorant text-xs sm:text-base text-[#4a3266] italic leading-tight sm:leading-normal">Te invito a mi acción de gracias en una tarde de adoración a Dios</p>
+            <p class="text-[9px] sm:text-[11px] uppercase tracking-widest text-[#8463ac] font-semibold mt-1 sm:mt-3">Viernes • 25 de Diciembre</p>
           </div>
         </div>
 
@@ -333,17 +343,17 @@
 
         <!-- Luminous Butterfly Seal Button -->
         <div id="open-envelope-btn" class="butterfly-seal group">
-          <div class="relative w-24 h-24 rounded-full flex items-center justify-center p-2">
+          <div class="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full flex items-center justify-center p-2">
             <!-- Glowing ring effect -->
             <div class="absolute inset-0 rounded-full bg-gradient-to-tr from-[#d4af37] via-[#c4a9e6] to-[#d4af37] opacity-60 blur-md group-hover:opacity-90 transition"></div>
             <div class="absolute inset-1 rounded-full bg-[#3d265a] border-2 border-[#d4af37] shadow-inner"></div>
             
             <!-- Butterfly image -->
-            <img src="./assets/butterfly-seal-transparent.png" alt="Broche de Mariposa" class="relative z-10 w-16 h-16 object-contain transform group-hover:scale-110 transition duration-300">
+            <img src="./assets/butterfly-seal-transparent.png" alt="Broche de Mariposa" class="relative z-10 w-12 h-12 sm:w-16 sm:h-16 object-contain transform group-hover:scale-110 transition duration-300">
           </div>
           
-          <div class="mt-2 text-center">
-            <span class="inline-block px-3 py-1 bg-[#2c1743]/90 text-[#fbf7dc] border border-[#d4af37]/60 text-[10px] uppercase tracking-[0.2em] rounded-full shadow-lg font-medium animate-pulse">
+          <div class="mt-1 sm:mt-2 text-center whitespace-nowrap">
+            <span class="inline-block px-2.5 py-0.5 sm:px-3 sm:py-1 bg-[#2c1743]/90 text-[#fbf7dc] border border-[#d4af37]/60 text-[9px] sm:text-[10px] uppercase tracking-[0.2em] rounded-full shadow-lg font-medium animate-pulse">
               Toca para abrir
             </span>
           </div>
@@ -625,11 +635,6 @@
         <p class="text-xs text-[#543b74] leading-relaxed mb-4">
           Tu presencia es mi mayor regalo. Si deseas hacerme un presente, contaremos con un baúl para sobres en la recepción.
         </p>
-      <!-- <div class="text-[11px] text-[#5e4182] bg-white/70 p-2.5 rounded-lg border border-[#d4af37]/30">
-          <span class="font-semibold">Transferencia Bancaria:</span><br>
-          CLABE: 012 180 00123456789 0<br>
-          Banco: BAC • Titular: Angie Siciliano
-        </div> -->
       </div>
 
     </div>
@@ -779,7 +784,7 @@
     const musicText = document.getElementById('music-text');
     let isPlaying = false;
 
-    bgAudio.volume = 0.5; // volumen de 0.0 a 1.0
+    bgAudio.volume = 0.5;
 
     function startAmbientMusic() {
       const p = bgAudio.play();
@@ -788,7 +793,6 @@
           isPlaying = true;
           musicText.textContent = 'Pausar';
         }).catch((err) => {
-          // El navegador bloqueó la reproducción o no encontró el archivo
           console.warn('No se pudo reproducir la música:', err);
           isPlaying = false;
           musicText.textContent = 'Música';
@@ -815,7 +819,7 @@
 
     document.getElementById('music-btn').addEventListener('click', toggleMusic);
 
-    // Campanilla corta al abrir el sobre (sintetizada, no necesita archivo)
+    // Campanilla corta al abrir el sobre (sintetizada)
     let audioCtx = null;
 
     function playTone(freq, time, duration, gainValue = 0.08) {
@@ -841,7 +845,7 @@
         if (audioCtx.state === 'suspended') audioCtx.resume();
 
         const now = audioCtx.currentTime;
-        const notes = [523.25, 659.25, 783.99, 1046.50, 1318.51]; // C5, E5, G5, C6, E6
+        const notes = [523.25, 659.25, 783.99, 1046.50, 1318.51];
         notes.forEach((freq, idx) => {
           playTone(freq, now + idx * 0.1, 1.2, 0.12);
         });
@@ -858,18 +862,14 @@
     const reopenBtn = document.getElementById('reopen-envelope-btn');
 
     openBtn.addEventListener('click', () => {
-      // Campanilla al abrir
       playChime();
 
-      // Iniciar la música (dentro del clic del usuario, requerido por los navegadores)
       if (!isPlaying) {
         startAmbientMusic();
       }
 
-      // 1. Open flap and slide card
       envelope.classList.add('opened');
 
-      // 2. Trigger mini confetti burst
       if (typeof confetti === 'function') {
         confetti({
           particleCount: 40,
@@ -879,7 +879,6 @@
         });
       }
 
-      // 3. Transition to full invitation view
       setTimeout(() => {
         envelopeSection.style.opacity = '0';
         setTimeout(() => {
@@ -887,7 +886,6 @@
           invitationContent.classList.remove('hidden');
           window.scrollTo({ top: 0, behavior: 'smooth' });
           
-          // Re-render Lucide icons for freshly displayed elements
           if (window.lucide) {
             lucide.createIcons();
           }
@@ -895,7 +893,6 @@
       }, 1400);
     });
 
-    // Reopen envelope (toggle back)
     reopenBtn.addEventListener('click', () => {
       invitationContent.classList.add('hidden');
       envelopeSection.classList.remove('hidden');
@@ -942,7 +939,6 @@
       const passes = document.getElementById('guest-passes').value;
       const message = document.getElementById('guest-message').value;
 
-      // Confetti celebration
       if (typeof confetti === 'function') {
         confetti({
           particleCount: 100,
@@ -952,15 +948,12 @@
         });
       }
 
-      // Show success box
       rsvpSuccess.classList.remove('hidden');
 
-      // Build WhatsApp message
       const text = `¡Hola Angie Siciliano! Confirmo mi asistencia para tus 15 Años:%0A%0A👤 *Nombre:* ${encodeURIComponent(name)}%0A✨ *Asistencia:* ${encodeURIComponent(attendance)}%0A🎟️ *Pases:* ${encodeURIComponent(passes)}%0A💌 *Mensaje:* ${encodeURIComponent(message || '¡Felicidades!')}`;
       
       const whatsappUrl = `https://api.whatsapp.com/send?phone=50376766215&text=${text}`;
       
-      // Open WhatsApp in new tab after brief celebration
       setTimeout(() => {
         window.open(whatsappUrl, '_blank');
       }, 800);
