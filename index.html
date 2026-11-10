@@ -276,6 +276,9 @@
 </head>
 <body class="relative min-h-screen text-[#3c2954] antialiased selection:bg-[#c4a9e6] selection:text-[#2d1b46]">
 
+  <!-- Música de fondo (archivo en assets/music.mp3) -->
+  <audio id="bg-audio" src="./assets/music.mp3" loop preload="auto"></audio>
+
   <!-- Background Canvas for Floating Gold & Lavender Petals -->
   <canvas id="particle-canvas"></canvas>
 
@@ -667,7 +670,7 @@
               <option value="2" selected>2 Personas</option>
               <option value="3">3 Personas</option>
               <option value="4">4 Personas</option>
-			  <option value="4">Más de 5 personas</option>
+              <option value="5+">Más de 5 personas</option>
             </select>
           </div>
         </div>
@@ -702,7 +705,7 @@
 
 
   <!-- ========================================== -->
-  <!-- JAVASCRIPT LOGIC & AUDIO SYNTHESIZER -->
+  <!-- JAVASCRIPT LOGIC -->
   <!-- ========================================== -->
   <script>
     // 1. Particle Canvas (Floating golden dust & lavender petals)
@@ -771,10 +774,49 @@
       animate();
     })();
 
-    // 2. Web Audio API Ambient Synthesizer (Instant background music without external mp3 dependency)
-    let audioCtx = null;
+    // 2. Música de fondo: archivo ./assets/music.mp3
+    const bgAudio = document.getElementById('bg-audio');
+    const musicText = document.getElementById('music-text');
     let isPlaying = false;
-    let musicInterval = null;
+
+    bgAudio.volume = 0.5; // volumen de 0.0 a 1.0
+
+    function startAmbientMusic() {
+      const p = bgAudio.play();
+      if (p && typeof p.then === 'function') {
+        p.then(() => {
+          isPlaying = true;
+          musicText.textContent = 'Pausar';
+        }).catch((err) => {
+          // El navegador bloqueó la reproducción o no encontró el archivo
+          console.warn('No se pudo reproducir la música:', err);
+          isPlaying = false;
+          musicText.textContent = 'Música';
+        });
+      } else {
+        isPlaying = true;
+        musicText.textContent = 'Pausar';
+      }
+    }
+
+    function stopMusic() {
+      bgAudio.pause();
+      isPlaying = false;
+      musicText.textContent = 'Música';
+    }
+
+    function toggleMusic() {
+      if (isPlaying) {
+        stopMusic();
+      } else {
+        startAmbientMusic();
+      }
+    }
+
+    document.getElementById('music-btn').addEventListener('click', toggleMusic);
+
+    // Campanilla corta al abrir el sobre (sintetizada, no necesita archivo)
+    let audioCtx = null;
 
     function playTone(freq, time, duration, gainValue = 0.08) {
       if (!audioCtx) return;
@@ -782,7 +824,7 @@
       const gain = audioCtx.createGain();
       osc.type = 'sine';
       osc.frequency.setValueAtTime(freq, time);
-      
+
       gain.gain.setValueAtTime(0, time);
       gain.gain.linearRampToValueAtTime(gainValue, time + 0.08);
       gain.gain.exponentialRampToValueAtTime(0.0001, time + duration);
@@ -793,54 +835,20 @@
       osc.stop(time + duration);
     }
 
-    // Play chime on envelope open
     function playChime() {
-      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      if (audioCtx.state === 'suspended') audioCtx.resume();
-      
-      const now = audioCtx.currentTime;
-      const notes = [523.25, 659.25, 783.99, 1046.50, 1318.51]; // C5, E5, G5, C6, E6
-      notes.forEach((freq, idx) => {
-        playTone(freq, now + idx * 0.1, 1.2, 0.12);
-      });
-    }
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
 
-    // Ambient waltz melody
-    function startAmbientMusic() {
-      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      if (audioCtx.state === 'suspended') audioCtx.resume();
-      isPlaying = true;
-      document.getElementById('music-text').textContent = 'Pausar';
-
-      const melody = [
-        392.00, 440.00, 523.25, 659.25, 587.33, 523.25, 659.25, 783.99,
-        659.25, 587.33, 523.25, 440.00, 392.00, 523.25, 587.33, 523.25
-      ];
-      let step = 0;
-
-      if (musicInterval) clearInterval(musicInterval);
-      musicInterval = setInterval(() => {
-        if (!isPlaying) return;
         const now = audioCtx.currentTime;
-        const note = melody[step % melody.length];
-        playTone(note, now, 1.8, 0.04);
-        // Harmony note
-        playTone(note * 0.75, now, 2.0, 0.02);
-        step++;
-      }, 750);
-    }
-
-    function toggleMusic() {
-      if (isPlaying) {
-        isPlaying = false;
-        clearInterval(musicInterval);
-        document.getElementById('music-text').textContent = 'Música';
-      } else {
-        startAmbientMusic();
+        const notes = [523.25, 659.25, 783.99, 1046.50, 1318.51]; // C5, E5, G5, C6, E6
+        notes.forEach((freq, idx) => {
+          playTone(freq, now + idx * 0.1, 1.2, 0.12);
+        });
+      } catch (e) {
+        console.warn('No se pudo reproducir la campanilla:', e);
       }
     }
-
-    document.getElementById('music-btn').addEventListener('click', toggleMusic);
 
     // 3. Envelope Interaction Logic
     const envelope = document.getElementById('envelope');
@@ -850,10 +858,10 @@
     const reopenBtn = document.getElementById('reopen-envelope-btn');
 
     openBtn.addEventListener('click', () => {
-      // Play celebratory chime sound
+      // Campanilla al abrir
       playChime();
-      
-      // Start ambient music gently
+
+      // Iniciar la música (dentro del clic del usuario, requerido por los navegadores)
       if (!isPlaying) {
         startAmbientMusic();
       }
@@ -896,9 +904,9 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
-    // 4. Live Countdown to Quinceañera Event Date (Nov 14, 2026)
+    // 4. Live Countdown to Quinceañera Event Date (25 de diciembre de 2026, 2:00 PM)
     function updateCountdown() {
-      const eventDate = new Date('2026-11-14T17:00:00').getTime();
+      const eventDate = new Date('2026-12-25T14:00:00').getTime();
       const now = new Date().getTime();
       const distance = eventDate - now;
 
@@ -948,7 +956,7 @@
       rsvpSuccess.classList.remove('hidden');
 
       // Build WhatsApp message
-      const text = `¡Hola Angie Siciliano! Confirmo mi asistencia para tus 15 Años:%0A%0A👤 *Nombre:* ${encodeURIComponent(name)}%0A✨ *Asistencia:* ${encodeURIComponent(attendance)}%0A🎟️ *Pases:* ${passes}%0A💌 *Mensaje:* ${encodeURIComponent(message || '¡Felicidades!')}`;
+      const text = `¡Hola Angie Siciliano! Confirmo mi asistencia para tus 15 Años:%0A%0A👤 *Nombre:* ${encodeURIComponent(name)}%0A✨ *Asistencia:* ${encodeURIComponent(attendance)}%0A🎟️ *Pases:* ${encodeURIComponent(passes)}%0A💌 *Mensaje:* ${encodeURIComponent(message || '¡Felicidades!')}`;
       
       const whatsappUrl = `https://api.whatsapp.com/send?phone=50376766215&text=${text}`;
       
